@@ -2,16 +2,16 @@
 
 const fs = require("fs");
 const path = require("path");
-const Sequelize = require("./node_modules/sequelize");
+const Sequelize = require("sequelize");
 const basename = path.basename(__filename);
 // const env = process.env.NODE_ENV || "development";
 // const config = require(__dirname + "/../config/config.json")[env];
 const db = {};
 
-const sequelize = new Sequelize("Uritube", "root", "", {
-  host: "localhost",
-  dialect: "mysql"
-  // port: "8080"
+const sequelize = new Sequelize("Uritube", "LA", "Uritube!!0290", {
+  host: "uritube-database.cucu5jpgrdgl.ap-northeast-2.rds.amazonaws.com",
+  dialect: "mysql",
+  port: "6900"
 });
 
 sequelize.sync();

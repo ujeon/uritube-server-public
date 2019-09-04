@@ -34,5 +34,3 @@ module.exports = function(sequelize, DataTypes) {
   };
   return Users;
 };
-
-// module.exports = Users;

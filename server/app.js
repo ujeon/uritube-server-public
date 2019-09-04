@@ -1,3 +1,4 @@
+/*eslint-disable */
 var express = require("express");
 var bodyParser = require("body-parser");
 var titles = require("./model").titles;
@@ -5,7 +6,7 @@ var categories = require("./model").categories;
 var users = require("./model").users;
 var ca_comments = require("./model").ca_comments;
 var user_comments = require("./model").user_comments;
-// var cors = require("cors");
+var cors = require("cors");
 const app = express();
 
 app.listen(3000, () => {
@@ -15,7 +16,7 @@ app.listen(3000, () => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post("/", (req, res) => {
+app.post("/title", (req, res) => {
   titles
     .create({
       name: req.body.name
@@ -23,8 +24,8 @@ app.post("/", (req, res) => {
     .then(val => res.send(val));
 });
 
-app.post("/a", (req, res) => {
-  var id = titles
+app.post("/category",  (req, res) => {
+  var id =  titles
     .findOne({
       where: { name: req.body.title }
     })
@@ -48,8 +49,8 @@ app.post("/user", (req, res) => {
     .then(val => res.send(val));
 });
 
-app.post("/comment", (req, res) => {
-  var category_id = categories
+app.post("/comment",  (req, res) => {
+  var category_id =  categories
     .findOne({
       where: { name: req.body.category }
     })
@@ -60,7 +61,7 @@ app.post("/comment", (req, res) => {
     category_id: category_id
   });
 
-  var user_id = users
+  var user_id =  users
     .findOne({
       where: { name: req.body.user }
     })
