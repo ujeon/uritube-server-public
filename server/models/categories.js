@@ -1,7 +1,4 @@
-// const sequelize = require("./index");
-// const Sequelize = require("sequelize");
-// const Titles = require("./titles");
-
+/* eslint no-use-before-define: 0 */
 module.exports = function(sequelize, DataTypes) {
   const Categories = sequelize.define(
     "categories",
@@ -29,7 +26,3 @@ module.exports = function(sequelize, DataTypes) {
 
   return Categories;
 };
-
-// Categories.belongsTo(Titles);
-
-// module.exports = Categories;

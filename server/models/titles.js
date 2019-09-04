@@ -1,6 +1,3 @@
-// const sequelize = require("./index");
-// const Sequelize = require("sequelize");
-
 module.exports = function(sequelize, DataTypes) {
   const Titles = sequelize.define(
     "titles",
@@ -26,5 +23,3 @@ module.exports = function(sequelize, DataTypes) {
   };
   return Titles;
 };
-
-// module.exports = Titles;
