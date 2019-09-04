@@ -21,11 +21,12 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
   Categories.associate = function(models) {
-    models.categories.hasMany(models.ca_comments, {
+    models.categories.hasMany(models.comments, {
       foreignKey: "category_id",
       onDelete: "cascade"
     });
   };
+
   return Categories;
 };
 

@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
   const Comments = sequelize.define(
-    "ca_comments",
+    "comments",
     {
       text: {
         type: DataTypes.STRING,
@@ -10,7 +10,7 @@ module.exports = function(sequelize, DataTypes) {
     {
       underscored: true,
       freezeTableName: true,
-      tableName: "ca_comments"
+      tableName: "comments"
     }
   );
   return Comments;

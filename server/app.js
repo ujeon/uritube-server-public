@@ -24,8 +24,8 @@ app.post("/title", (req, res) => {
     .then(val => res.send(val));
 });
 
-app.post("/category",  (req, res) => {
-  var id =  titles
+app.post("/category",   (req, res) => {
+  var id =   titles
     .findOne({
       where: { name: req.body.title }
     })
@@ -40,7 +40,7 @@ app.post("/category",  (req, res) => {
 });
 
 app.post("/user", (req, res) => {
-  users
+   users
     .create({
       email: req.body.email,
       name: req.body.name,
@@ -56,11 +56,6 @@ app.post("/comment",  (req, res) => {
     })
     .then(val => val.dataValues.id);
 
-  ca_comments.create({
-    text: req.body.text,
-    category_id: category_id
-  });
-
   var user_id =  users
     .findOne({
       where: { name: req.body.user }
@@ -70,7 +65,8 @@ app.post("/comment",  (req, res) => {
   user_comments
     .create({
       text: req.body.text,
-      user_id: user_id
+      user_id: user_id,
+      category_id: category_id
     })
     .then(val => res.send(val));
 });

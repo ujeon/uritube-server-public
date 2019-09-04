@@ -8,12 +8,16 @@ const basename = path.basename(__filename);
 // const config = require(__dirname + "/../config/config.json")[env];
 const db = {};
 
-const sequelize = new Sequelize("Uritube", "LA", "Uritube!!0290", {
+const sequelize = new Sequelize("Uritube", "LA", "", {
   host: "uritube-database.cucu5jpgrdgl.ap-northeast-2.rds.amazonaws.com",
   dialect: "mysql",
   port: "6900"
 });
 
+// const sequelize = new Sequelize("Uritube", "root", "", {
+//   host: "localhost",
+//   dialect: "mysql"
+// });
 sequelize.sync();
 
 fs.readdirSync(__dirname)

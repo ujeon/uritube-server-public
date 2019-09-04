@@ -27,7 +27,7 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
   Users.associate = function(models) {
-    models.users.hasMany(models.user_comments, {
+    models.users.hasMany(models.comments, {
       foreignKey: "user_id",
       onDelete: "cascade"
     });
