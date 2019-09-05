@@ -9,7 +9,7 @@ router.get("/", async (req, res, next) => {
 
   let result = titleResult.map(async el => {
     const temp = Object.assign({}, el.dataValues);
-    temp.category = await categories
+    temp.categories = await categories
       .findAll({
         where: { titles_id: el.id }
       })
