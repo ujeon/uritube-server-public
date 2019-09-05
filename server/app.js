@@ -3,19 +3,31 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var cors = require("cors");
+var session = require("express-session");
+var cookieParser = require("cookie-parser");
 
 var addTitle = require("./routes/Title");
 // console.log("라우트 폴더", addTitle);
+const Users = require("./routes/Users");
 const app = express();
 
 app.listen(3000, () => {
   console.log("server open!!!!!!!!!!!!!!!");
 });
+app.use(
+  session({
+    secret: "Uritube"
+  })
+);
+console.log(session.Cookie());
 
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/titles", addTitle);
+
+app.use("/users", Users);
 
 app.post("/category", (req, res) => {
   var id = titles
