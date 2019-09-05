@@ -4,7 +4,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var cors = require("cors");
 
-var addTitle = require("./routes/addTitle");
+var addTitle = require("./routes/Title");
 // console.log("라우트 폴더", addTitle);
 const app = express();
 
@@ -15,7 +15,7 @@ app.listen(3000, () => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use("/title", addTitle);
+app.use("/titles", addTitle);
 
 app.post("/category", (req, res) => {
   var id = titles
