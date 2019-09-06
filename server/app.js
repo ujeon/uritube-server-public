@@ -15,7 +15,12 @@ const app = express();
 
 app.use(
   session({
-    secret: "Uritube"
+    secret: "Uritube",
+    cookie: {
+      maxAge: 1000 * 60 * 5 // 쿠키 유효기간 1시간
+    },
+    resave: false,
+    saveUninitialized: false
   })
 );
 
