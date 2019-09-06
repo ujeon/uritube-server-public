@@ -4,7 +4,7 @@ var categories = require("../models").categories;
 
 var router = express.Router();
 
-router.get("/", async (req, res, next) => {
+router.get("/", async (req, res) => {
   const titleResult = await titles.findAll().then(res => res);
 
   let result = titleResult.map(async el => {
@@ -28,21 +28,19 @@ router.get("/", async (req, res, next) => {
   }
 
   res.send(JSON.stringify(result));
-  next();
 });
 
 //REVIEW next가 필요한지?
-router.post("/add", async (req, res, next) => {
-  await titles
+router.post("/add", (req, res) => {
+  titles
     .create({
       name: req.body.name
     })
     .then(result => res.send(JSON.stringify(result)));
-  next();
 });
 
-router.post("/update", async (req, res, next) => {
-  await titles
+router.post("/update", (req, res) => {
+  titles
     .update(
       {
         name: req.body.name
@@ -59,10 +57,10 @@ router.post("/update", async (req, res, next) => {
     .then(memo => {
       res.send(JSON.stringify(memo));
     });
-  next();
 });
 
-router.post("/delete", async (req, res) => {
+router.post("/delete", (req, res) => {
+  let result = {};
   titles
     .destroy({
       where: { name: req.body.name }
@@ -70,9 +68,10 @@ router.post("/delete", async (req, res) => {
     .then(() => {
       return titles.findOne({ where: { name: req.body.name } });
     })
-    .then(memo => {
-      console.log("Destroyed Memo? :", memo); // null
-      res.send(memo);
+    .then(() => {
+      result.isTitlesDeleted = true;
+      // console.log("Destroyed Memo? :", memo); // null
+      res.send(result);
     });
 });
 module.exports = router;

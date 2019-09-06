@@ -5,7 +5,7 @@ var users = require("../models").users;
 
 var router = express.Router();
 
-router.post("/add", async (req, res, next) => {
+router.post("/add", async (req, res) => {
   var category_id = await categories
     .findOne({
       where: { name: req.body.category }
@@ -25,11 +25,10 @@ router.post("/add", async (req, res, next) => {
       category_id: category_id
     })
     .then(val => res.send(val));
-  next();
 });
 
-router.post("/update", async (req, res, next) => {
-  await comments
+router.post("/update", (req, res) => {
+  comments
     .update(
       {
         text: req.body.text
@@ -46,10 +45,9 @@ router.post("/update", async (req, res, next) => {
     .then(memo => {
       res.send(JSON.stringify(memo));
     });
-  next();
 });
 
-router.post("/delete", async (req, res) => {
+router.post("/delete", (req, res) => {
   comments
     .destroy({
       where: { id: req.body.id }
