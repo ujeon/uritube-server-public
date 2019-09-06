@@ -29,19 +29,55 @@ router.route("/:id/comments").get(async (req, res, next) => {
   next();
 });
 
-router.post("/add", async (req, res) => {
+router.post("/add", async (req, res, next) => {
   let title_id = await titles
     .findOne({
       where: { name: req.body.title }
     })
     .then(val => val.dataValues.id);
 
-  categories
+  await categories
     .create({
       name: req.body.name,
       title_id: title_id
     })
     .then(val => res.send(val));
+  next();
+});
+
+router.post("/update", async (req, res, next) => {
+  await categories
+    .update(
+      {
+        name: req.body.name
+      },
+      {
+        where: { id: req.body.id }
+      }
+    )
+    .then(() => {
+      return categories.findOne({
+        where: { name: req.body.name }
+      });
+    })
+    .then(memo => {
+      res.send(JSON.stringify(memo));
+    });
+  next();
+});
+
+router.post("/delete", async (req, res) => {
+  await categories
+    .destroy({
+      where: { id: req.body.id }
+    })
+    .then(() => {
+      return categories.findOne({ where: { id: req.body.id } });
+    })
+    .then(memo => {
+      console.log("Destroyed Memo? :", memo); // null
+      res.send(memo);
+    });
 });
 
 module.exports = router;
