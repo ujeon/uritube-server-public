@@ -13,6 +13,10 @@ module.exports = function(sequelize, DataTypes) {
       password: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      key: {
+        type: DataTypes.STRING,
+        allowNull: false
       }
     },
     {

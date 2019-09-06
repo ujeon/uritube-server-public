@@ -1,5 +1,5 @@
 var express = require("express");
-
+var crypto = require("crypto");
 var router = express.Router();
 
 var users = require("../models").users;
@@ -36,22 +36,51 @@ router.post("/signup", async (req, res) => {
     .findOne({ where: { email: req.body.email } })
     .then(result => result);
 
-  let response = {};
-  if (!userExist) {
-    users
-      .create({
-        email: req.body.email,
-        name: req.body.name,
-        password: req.body.password
-      })
-      .then(() => {
-        response.isSignup = true;
-        res.send(JSON.stringify(response));
-      });
-  } else {
-    response.isSignup = false;
-    res.send(JSON.stringify(response));
-  }
+  crypto.randomBytes(64, (err, buf) => {
+    crypto.pbkdf2(
+      req.body.password,
+      buf.toString("base64"),
+      199543,
+      64,
+      "sha512",
+      (err, key) => {
+        console.log(key.toString("base64"));
+        let response = {};
+        if (!userExist) {
+          users
+            .create({
+              email: req.body.email,
+              name: req.body.name,
+              password: key.toString("base64")
+              // key: buf.toString("base64")
+            })
+            .then(() => {
+              response.isSignup = true;
+              res.send(JSON.stringify(response));
+            });
+        } else {
+          response.isSignup = false;
+          res.send(JSON.stringify(response));
+        }
+      }
+    );
+  });
+  // let response = {};
+  // if (!userExist) {
+  //   users
+  //     .create({
+  //       email: req.body.email,
+  //       name: req.body.name,
+  //       password: req.body.password
+  //     })
+  //     .then(() => {
+  //       response.isSignup = true;
+  //       res.send(JSON.stringify(response));
+  //     });
+  // } else {
+  //   response.isSignup = false;
+  //   res.send(JSON.stringify(response));
+  // }
 });
 
 //NOTE 로그인 기능 프로토 타입
