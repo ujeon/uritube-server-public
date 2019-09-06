@@ -36,81 +36,67 @@ router.post("/signup", async (req, res) => {
     .findOne({ where: { email: req.body.email } })
     .then(result => result);
 
-  crypto.randomBytes(64, (err, buf) => {
-    crypto.pbkdf2(
-      req.body.password,
-      buf.toString("base64"),
-      199543,
-      64,
-      "sha512",
-      (err, key) => {
-        console.log(key.toString("base64"));
-        let response = {};
-        if (!userExist) {
+  let response = {};
+  if (!userExist) {
+    crypto.randomBytes(64, (err, buf) => {
+      crypto.pbkdf2(
+        req.body.password,
+        buf.toString("base64"),
+        199543,
+        64,
+        "sha512",
+        (err, key) => {
           users
             .create({
               email: req.body.email,
               name: req.body.name,
-              password: key.toString("base64")
-              // key: buf.toString("base64")
+              password: key.toString("base64"),
+              key: buf.toString("base64")
             })
             .then(() => {
               response.isSignup = true;
               res.send(JSON.stringify(response));
             });
-        } else {
-          response.isSignup = false;
-          res.send(JSON.stringify(response));
         }
-      }
-    );
-  });
-  // let response = {};
-  // if (!userExist) {
-  //   users
-  //     .create({
-  //       email: req.body.email,
-  //       name: req.body.name,
-  //       password: req.body.password
-  //     })
-  //     .then(() => {
-  //       response.isSignup = true;
-  //       res.send(JSON.stringify(response));
-  //     });
-  // } else {
-  //   response.isSignup = false;
-  //   res.send(JSON.stringify(response));
-  // }
+      );
+    });
+  } else {
+    response.isSignup = false;
+    res.send(JSON.stringify(response));
+  }
 });
 
 //NOTE 로그인 기능 프로토 타입
 router.post("/signin", async (req, res) => {
   var sess = req.session;
 
-  const userExist = await users
-    .findOne({ where: { email: req.body.email } })
-    .then(result => result);
-
   let response = {};
-  if (userExist) {
-    users
-      .findOne({
-        where: {
-          email: req.body.email,
-          password: req.body.password
-        }
-      })
-      .then(result => {
-        sess.user_id = result.dataValues.id;
-        console.log(sess);
 
-        response.isSignin = true;
-        res.send(JSON.stringify(response));
-      });
-  } else {
-    response.isSignin = false;
-    res.send(JSON.stringify(response));
-  }
+  users
+    .findOne({
+      where: {
+        email: req.body.email
+      }
+    })
+    .then(result => {
+      sess.user_id = result.dataValues.id;
+      crypto.pbkdf2(
+        req.body.password,
+        result.dataValues.key,
+        199543,
+        64,
+        "sha512",
+        (err, key) => {
+          if (key.toString("base64") === result.dataValues.password) {
+            response.isSignin = true;
+            res.send(JSON.stringify(response));
+          } else {
+            response.isSignin = false;
+            res.send(JSON.stringify(response));
+          }
+        }
+      );
+    });
 });
 
 //NOTE 로그아웃 기능 프로토 타입
@@ -125,27 +111,39 @@ router.post("/signout", (req, res) => {
 
 router.post("/update", (req, res) => {
   if (req.session.user_id) {
-    users
-      .update(
-        {
-          name: req.body.name,
-          password: req.body.password
-        },
-        {
-          where: {
-            id: req.session.user_id
-          }
+    crypto.randomBytes(64, (err, buf) => {
+      crypto.pbkdf2(
+        req.body.password,
+        buf.toString("base64"),
+        199543,
+        64,
+        "sha512",
+        (err, key) => {
+          users
+            .update(
+              {
+                name: req.body.name,
+                password: key.toString("base64"),
+                key: buf.toString("base64")
+              },
+              {
+                where: {
+                  id: req.session.user_id
+                }
+              }
+            )
+            .then(() => {
+              return users.findOne({
+                attributes: ["name", "email"],
+                where: {
+                  id: req.session.user_id
+                }
+              });
+            })
+            .then(result => res.send(JSON.stringify(result)));
         }
-      )
-      .then(() => {
-        return users.findOne({
-          attributes: ["name", "email"],
-          where: {
-            id: req.session.user_id
-          }
-        });
-      })
-      .then(result => res.send(JSON.stringify(result)));
+      );
+    });
   }
 });
 
