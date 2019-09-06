@@ -32,8 +32,8 @@ router.get("/", async (req, res, next) => {
 });
 
 //REVIEW next가 필요한지?
-router.post("/add", (req, res, next) => {
-  titles
+router.post("/add", async (req, res, next) => {
+  await titles
     .create({
       name: req.body.name
     })
@@ -41,4 +41,38 @@ router.post("/add", (req, res, next) => {
   next();
 });
 
+router.post("/update", async (req, res, next) => {
+  await titles
+    .update(
+      {
+        name: req.body.name
+      },
+      {
+        where: { id: req.body.id }
+      }
+    )
+    .then(() => {
+      return titles.findOne({
+        where: { name: req.body.name }
+      });
+    })
+    .then(memo => {
+      res.send(JSON.stringify(memo));
+    });
+  next();
+});
+
+router.post("/delete", async (req, res) => {
+  titles
+    .destroy({
+      where: { name: req.body.name }
+    })
+    .then(() => {
+      return titles.findOne({ where: { name: req.body.name } });
+    })
+    .then(memo => {
+      console.log("Destroyed Memo? :", memo); // null
+      res.send(memo);
+    });
+});
 module.exports = router;
