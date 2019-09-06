@@ -4,24 +4,23 @@ var router = express.Router();
 
 var users = require("../models").users;
 
-router.route("/:id/info").get(async (req, res, next) => {
+router.route("/:id/info").get((req, res) => {
   const userId = req.params.id;
-
-  await users
-    .findOne({
-      attributes: ["name", "email"],
-      where: {
-        id: userId
-      }
-    })
-    .then(result => res.send(JSON.stringify(result)));
-
-  next();
+  if (req.session.user_id) {
+    users
+      .findOne({
+        attributes: ["name", "email"],
+        where: {
+          id: userId
+        }
+      })
+      .then(result => res.send(JSON.stringify(result)));
+  }
 });
 
-router.route("/:id/comments").get(async (req, res, next) => {
+router.route("/:id/comments").get((req, res) => {
   const userId = req.params.id;
-  await users
+  users
     .findOne({
       attributes: ["id", "email", "name"],
       include: [{ all: true }],
@@ -30,7 +29,6 @@ router.route("/:id/comments").get(async (req, res, next) => {
       }
     })
     .then(result => res.send(JSON.stringify(result)));
-  next();
 });
 
 router.post("/signup", async (req, res) => {
@@ -38,7 +36,7 @@ router.post("/signup", async (req, res) => {
     .findOne({ where: { email: req.body.email } })
     .then(result => result);
 
-  let result = {};
+  let response = {};
   if (!userExist) {
     users
       .create({
@@ -47,25 +45,24 @@ router.post("/signup", async (req, res) => {
         password: req.body.password
       })
       .then(() => {
-        result.isSignup = true;
-        res.send(result);
+        response.isSignup = true;
+        res.send(JSON.stringify(response));
       });
   } else {
-    result.isSignup = false;
-    res.send(result);
+    response.isSignup = false;
+    res.send(JSON.stringify(response));
   }
 });
 
 //NOTE 로그인 기능 프로토 타입
 router.post("/signin", async (req, res) => {
   var sess = req.session;
-  console.log(req.cookies);
 
   const userExist = await users
     .findOne({ where: { email: req.body.email } })
     .then(result => result);
 
-  let temp = {};
+  let response = {};
   if (userExist) {
     users
       .findOne({
@@ -78,12 +75,12 @@ router.post("/signin", async (req, res) => {
         sess.user_id = result.dataValues.id;
         console.log(sess);
 
-        temp.isSignin = true;
-        res.send(temp);
+        response.isSignin = true;
+        res.send(JSON.stringify(response));
       });
   } else {
-    temp.isSignin = false;
-    res.send(temp);
+    response.isSignin = false;
+    res.send(JSON.stringify(response));
   }
 });
 
@@ -94,6 +91,50 @@ router.post("/signout", (req, res) => {
     res.end();
   } else {
     res.end();
+  }
+});
+
+router.post("/update", (req, res) => {
+  if (req.session.user_id) {
+    users
+      .update(
+        {
+          name: req.body.name,
+          password: req.body.password
+        },
+        {
+          where: {
+            id: req.session.user_id
+          }
+        }
+      )
+      .then(() => {
+        return users.findOne({
+          attributes: ["name", "email"],
+          where: {
+            id: req.session.user_id
+          }
+        });
+      })
+      .then(result => res.send(JSON.stringify(result)));
+  }
+});
+
+router.post("/delete", (req, res) => {
+  let result = {};
+  if (req.session.user_id) {
+    users
+      .destroy({
+        where: {
+          email: req.body.email,
+          password: req.body.password
+        }
+      })
+      .then(() => {
+        result.isUserDeleted = true;
+        res.clearCookie("connect.sid");
+        res.send(JSON.stringify(result));
+      });
   }
 });
 

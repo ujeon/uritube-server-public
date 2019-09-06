@@ -6,7 +6,7 @@ var titles = require("../models").titles;
 
 var router = express.Router();
 
-router.route("/:id/comments").get(async (req, res, next) => {
+router.route("/:id/comments").get(async (req, res) => {
   let ca_comments = await categories.findAll({ include: [comments] });
 
   let ca_id = req.params.id - 1;
@@ -26,10 +26,9 @@ router.route("/:id/comments").get(async (req, res, next) => {
   }
 
   res.send(result);
-  next();
 });
 
-router.post("/add", async (req, res, next) => {
+router.post("/add", async (req, res) => {
   let title_id = await titles
     .findOne({
       where: { name: req.body.title }
@@ -42,10 +41,9 @@ router.post("/add", async (req, res, next) => {
       title_id: title_id
     })
     .then(val => res.send(val));
-  next();
 });
 
-router.post("/update", async (req, res, next) => {
+router.post("/update", async (req, res) => {
   await categories
     .update(
       {
@@ -63,7 +61,6 @@ router.post("/update", async (req, res, next) => {
     .then(memo => {
       res.send(JSON.stringify(memo));
     });
-  next();
 });
 
 router.post("/delete", async (req, res) => {
