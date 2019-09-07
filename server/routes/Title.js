@@ -1,6 +1,6 @@
 var express = require("express");
-var titles = require("../models").titles;
-var categories = require("../models").categories;
+var titles = require("../models").Titles;
+var categories = require("../models").Categories;
 
 var router = express.Router();
 
@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
     const temp = Object.assign({}, el.dataValues);
     temp.categories = await categories
       .findAll({
-        where: { titles_id: el.id }
+        where: { title_id: el.id }
       })
       .then(res => {
         return res.map(el => {

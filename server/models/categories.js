@@ -1,28 +1,25 @@
-/* eslint no-use-before-define: 0 */
-module.exports = function(sequelize, DataTypes) {
+"use strict";
+module.exports = (sequelize, DataTypes) => {
   const Categories = sequelize.define(
-    "categories",
+    "Categories",
     {
       name: {
-        field: "name",
         type: DataTypes.STRING,
         allowNull: false
       }
     },
-    {
-      charset: "utf8",
-      collate: "utf8_unicode_ci",
-      underscored: true,
-      freezeTableName: true,
-      tableName: "categories"
-    }
+    {}
   );
   Categories.associate = function(models) {
-    models.categories.hasMany(models.comments, {
+    // associations can be defined here
+    models.Categories.hasMany(models.Comments, {
+      foreignKey: "category_id",
+      onDelete: "cascade"
+    });
+    models.Categories.hasMany(models.Favorites, {
       foreignKey: "category_id",
       onDelete: "cascade"
     });
   };
-
   return Categories;
 };

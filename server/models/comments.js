@@ -1,17 +1,15 @@
-module.exports = function(sequelize, DataTypes) {
+"use strict";
+module.exports = (sequelize, DataTypes) => {
   const Comments = sequelize.define(
-    "comments",
+    "Comments",
     {
       text: {
         type: DataTypes.STRING,
         allowNull: false
       }
     },
-    {
-      underscored: true,
-      freezeTableName: true,
-      tableName: "comments"
-    }
+    {}
   );
+
   return Comments;
 };
