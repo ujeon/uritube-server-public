@@ -4,6 +4,7 @@
     "password": "",
     "database": "Uritube",
     "host": "uritube-database.cucu5jpgrdgl.ap-northeast-2.rds.amazonaws.com",
+    "port": "6900",
     "dialect": "mysql"
   },
   "test": {
