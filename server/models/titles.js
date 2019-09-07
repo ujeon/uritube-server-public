@@ -1,23 +1,19 @@
-module.exports = function(sequelize, DataTypes) {
+"use strict";
+module.exports = (sequelize, DataTypes) => {
   const Titles = sequelize.define(
-    "titles",
+    "Titles",
     {
       name: {
         type: DataTypes.STRING,
         allowNull: false
       }
     },
-    {
-      charset: "utf8",
-      collate: "utf8_unicode_ci",
-      underscored: true,
-      freezeTableName: true,
-      tableName: "titles"
-    }
+    {}
   );
   Titles.associate = function(models) {
-    models.titles.hasMany(models.categories, {
-      foreignKey: "titles_id",
+    // associations can be defined here
+    models.Titles.hasMany(models.Categories, {
+      foreignKey: "title_id",
       onDelete: "cascade"
     });
   };

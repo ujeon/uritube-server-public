@@ -10,12 +10,18 @@ var Title = require("./routes/Title");
 var Users = require("./routes/Users");
 var Category = require("./routes/Category");
 var Comments = require("./routes/Comments");
+var Favorite = require("./routes/Favorite");
 
 const app = express();
 
 app.use(
   session({
-    secret: "Uritube"
+    secret: "Uritube",
+    cookie: {
+      maxAge: 1000 * 60 * 5 // 쿠키 유효기간 1시간
+    },
+    resave: false,
+    saveUninitialized: false
   })
 );
 
@@ -27,6 +33,7 @@ app.use("/titles", Title);
 app.use("/users", Users);
 app.use("/categories", Category);
 app.use("/comments", Comments);
+app.use("/favorite", Favorite);
 
 app.listen(3000, () => {
   console.log("URITUBE SERVER IS RUNNING 😃");

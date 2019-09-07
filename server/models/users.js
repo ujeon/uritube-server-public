@@ -1,6 +1,7 @@
-module.exports = function(sequelize, DataTypes) {
+"use strict";
+module.exports = (sequelize, DataTypes) => {
   const Users = sequelize.define(
-    "users",
+    "Users",
     {
       email: {
         type: DataTypes.STRING,
@@ -13,18 +14,21 @@ module.exports = function(sequelize, DataTypes) {
       password: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      key: {
+        type: DataTypes.STRING,
+        allowNull: false
       }
     },
-    {
-      charset: "utf8",
-      collate: "utf8_unicode_ci",
-      underscored: true,
-      freezeTableName: true,
-      tableName: "users"
-    }
+    {}
   );
   Users.associate = function(models) {
-    models.users.hasMany(models.comments, {
+    // associations can be defined here
+    models.Users.hasMany(models.Comments, {
+      foreignKey: "user_id",
+      onDelete: "cascade"
+    });
+    models.Users.hasMany(models.Favorites, {
       foreignKey: "user_id",
       onDelete: "cascade"
     });

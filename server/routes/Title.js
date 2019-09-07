@@ -1,6 +1,6 @@
 var express = require("express");
-var titles = require("../models").titles;
-var categories = require("../models").categories;
+var titles = require("../models").Titles;
+var categories = require("../models").Categories;
 
 var router = express.Router();
 
@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
     const temp = Object.assign({}, el.dataValues);
     temp.categories = await categories
       .findAll({
-        where: { titles_id: el.id }
+        where: { title_id: el.id }
       })
       .then(res => {
         return res.map(el => {
@@ -32,46 +32,58 @@ router.get("/", async (req, res) => {
 
 //REVIEW next가 필요한지?
 router.post("/add", (req, res) => {
-  titles
-    .create({
-      name: req.body.name
-    })
-    .then(result => res.send(JSON.stringify(result)));
+  if (req.session.id !== 1) {
+    res.send("권한이 없습니다.");
+  } else {
+    titles
+      .create({
+        name: req.body.name
+      })
+      .then(result => res.send(JSON.stringify(result)));
+  }
 });
 
 router.post("/update", (req, res) => {
-  titles
-    .update(
-      {
-        name: req.body.name
-      },
-      {
-        where: { id: req.body.id }
-      }
-    )
-    .then(() => {
-      return titles.findOne({
-        where: { name: req.body.name }
+  if (req.session.id !== 1) {
+    res.send("권한이 없습니다.");
+  } else {
+    titles
+      .update(
+        {
+          name: req.body.name
+        },
+        {
+          where: { id: req.body.id }
+        }
+      )
+      .then(() => {
+        return titles.findOne({
+          where: { name: req.body.name }
+        });
+      })
+      .then(memo => {
+        res.send(JSON.stringify(memo));
       });
-    })
-    .then(memo => {
-      res.send(JSON.stringify(memo));
-    });
+  }
 });
 
 router.post("/delete", (req, res) => {
-  let result = {};
-  titles
-    .destroy({
-      where: { name: req.body.name }
-    })
-    .then(() => {
-      return titles.findOne({ where: { name: req.body.name } });
-    })
-    .then(() => {
-      result.isTitlesDeleted = true;
-      // console.log("Destroyed Memo? :", memo); // null
-      res.send(result);
-    });
+  if (req.session.id !== 1) {
+    res.send("권한이 없습니다.");
+  } else {
+    let result = {};
+    titles
+      .destroy({
+        where: { name: req.body.name }
+      })
+      .then(() => {
+        return titles.findOne({ where: { name: req.body.name } });
+      })
+      .then(() => {
+        result.isTitlesDeleted = true;
+        // console.log("Destroyed Memo? :", memo); // null
+        res.send(result);
+      });
+  }
 });
 module.exports = router;
