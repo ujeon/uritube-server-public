@@ -10,6 +10,7 @@ var Title = require("./routes/Title");
 var Users = require("./routes/Users");
 var Category = require("./routes/Category");
 var Comments = require("./routes/Comments");
+var Favorite = require("./routes/Favorite");
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use("/titles", Title);
 app.use("/users", Users);
 app.use("/categories", Category);
 app.use("/comments", Comments);
+app.use("/favorite", Favorite);
 
 app.listen(3000, () => {
   console.log("URITUBE SERVER IS RUNNING 😃");

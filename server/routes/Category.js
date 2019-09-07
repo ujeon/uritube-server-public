@@ -1,16 +1,16 @@
 var express = require("express");
-var categories = require("../models").categories;
-var comments = require("../models").comments;
-var users = require("../models").users;
-var titles = require("../models").titles;
+var categories = require("../models").Categories;
+var comments = require("../models").Comments;
+var users = require("../models").Users;
+var titles = require("../models").Titles;
 
 var router = express.Router();
 
 router.route("/:id/comments").get(async (req, res) => {
   let ca_comments = await categories.findAll({ include: [comments] });
-
+  console.log(ca_comments.Comments);
   let ca_id = req.params.id - 1;
-  let result = ca_comments[ca_id].dataValues.comments.map(async ca_val => {
+  let result = ca_comments[ca_id].dataValues.Comments.map(async ca_val => {
     return await users
       .findOne({
         where: { id: ca_val.dataValues.user_id }

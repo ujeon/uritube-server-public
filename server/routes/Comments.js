@@ -1,7 +1,7 @@
 var express = require("express");
-var comments = require("../models").comments;
-var categories = require("../models").categories;
-var users = require("../models").users;
+var comments = require("../models").Comments;
+var categories = require("../models").Categories;
+var users = require("../models").Users;
 
 var router = express.Router();
 

@@ -2,7 +2,7 @@ var express = require("express");
 var crypto = require("crypto");
 var router = express.Router();
 
-var users = require("../models").users;
+var users = require("../models").Users;
 
 router.route("/:id/info").get((req, res) => {
   const userId = req.params.id;
@@ -102,6 +102,7 @@ router.post("/signin", async (req, res) => {
 //NOTE 로그아웃 기능 프로토 타입
 router.post("/signout", (req, res) => {
   if (req.session.user_id) {
+    res.session.destroy();
     res.clearCookie("connect.sid");
     res.end();
   } else {
