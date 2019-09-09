@@ -12,7 +12,11 @@ var Category = require("./routes/Category");
 var Comments = require("./routes/Comments");
 var Favorite = require("./routes/Favorite");
 
+var checkValidReq = require("./middleware/checkValidReq");
+
 const app = express();
+
+app.use(cors());
 
 app.use(
   session({
@@ -28,6 +32,7 @@ app.use(
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(checkValidReq);
 
 app.use("/titles", Title);
 app.use("/users", Users);
