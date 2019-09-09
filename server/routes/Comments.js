@@ -8,7 +8,7 @@ var router = express.Router();
 router.post("/add", async (req, res) => {
   var category_id = await categories
     .findOne({
-      where: { name: req.body.category }
+      where: { id: req.body.category_id }
     })
     .then(val => val.dataValues.id);
 

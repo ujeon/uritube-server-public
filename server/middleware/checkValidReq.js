@@ -18,7 +18,7 @@ router.use((req, res, next) => {
     });
 
     validator = reqBody[paths[0]][paths[1]];
-
+    console.log(validator);
     if (bodyArray.length === validator.length) {
       for (let i = 0; i < validator.length; i++) {
         if (!req.body[validator[i]]) {

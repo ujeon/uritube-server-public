@@ -10,17 +10,18 @@ router.route("/:id/comments").get(async (req, res) => {
   try {
     let ca_comments = await categories.findAll({ include: [comments] });
     let ca_id = req.params.id - 1;
+    let ca_name = ca_comments[ca_id].dataValues.name;
     let result = ca_comments[ca_id].dataValues.Comments.map(async ca_val => {
       return await users
         .findOne({
           where: { id: ca_val.dataValues.user_id }
         })
         .then(val => {
-          ca_val.dataValues.ca_name = val.dataValues.name;
+          ca_val.dataValues.ca_name = ca_name;
+          ca_val.dataValues.user_name = val.dataValues.name;
           return ca_val;
         });
     });
-
     for (let i = 0; i < result.length; i++) {
       result[i] = await result[i];
     }
