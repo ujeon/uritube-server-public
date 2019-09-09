@@ -24,7 +24,7 @@ router.post("/add", async (req, res) => {
       user_id: user_id,
       category_id: category_id
     })
-    .then(val => res.send(val));
+    .then(val => res.send(JSON.stringify(val)));
 });
 
 router.post("/update", (req, res) => {
@@ -57,7 +57,7 @@ router.post("/delete", (req, res) => {
     })
     .then(memo => {
       console.log("Destroyed Memo? :", memo); // null
-      res.send(memo);
+      res.send(JSON.stringify(memo));
     });
 });
 module.exports = router;

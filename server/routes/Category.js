@@ -7,29 +7,33 @@ var titles = require("../models").Titles;
 var router = express.Router();
 
 router.route("/:id/comments").get(async (req, res) => {
-  let ca_comments = await categories.findAll({ include: [comments] });
-  let ca_id = req.params.id - 1;
-  let result = ca_comments[ca_id].dataValues.Comments.map(async ca_val => {
-    return await users
-      .findOne({
-        where: { id: ca_val.dataValues.user_id }
-      })
-      .then(val => {
-        ca_val.dataValues.ca_name = val.dataValues.name;
-        return ca_val;
-      });
-  });
+  try {
+    let ca_comments = await categories.findAll({ include: [comments] });
+    let ca_id = req.params.id - 1;
+    let result = ca_comments[ca_id].dataValues.Comments.map(async ca_val => {
+      return await users
+        .findOne({
+          where: { id: ca_val.dataValues.user_id }
+        })
+        .then(val => {
+          ca_val.dataValues.ca_name = val.dataValues.name;
+          return ca_val;
+        });
+    });
 
-  for (let i = 0; i < result.length; i++) {
-    result[i] = await result[i];
+    for (let i = 0; i < result.length; i++) {
+      result[i] = await result[i];
+    }
+
+    res.send(JSON.stringify(result));
+  } catch (err) {
+    res.send(JSON.stringify(err));
   }
-
-  res.send(result);
 });
 
 router.post("/add", async (req, res) => {
   if (req.session.id !== 1) {
-    res.send("권한이 없습니다.");
+    res.sendStatus(401);
   } else {
     let title_id = await titles
       .findOne({
@@ -42,13 +46,14 @@ router.post("/add", async (req, res) => {
         name: req.body.name,
         title_id: title_id
       })
-      .then(val => res.send(val));
+      .then(val => res.send(JSON.stringify(val)))
+      .catch(err => res.send(JSON.stringify(err)));
   }
 });
 
 router.post("/update", async (req, res) => {
   if (req.session.id !== 1) {
-    res.send("권한이 없습니다.");
+    res.sendStatus(401);
   } else {
     await categories
       .update(
@@ -66,13 +71,14 @@ router.post("/update", async (req, res) => {
       })
       .then(memo => {
         res.send(JSON.stringify(memo));
-      });
+      })
+      .catch(err => res.send(JSON.stringify(err)));
   }
 });
 
 router.post("/delete", async (req, res) => {
   if (req.session.id !== 1) {
-    res.send("권한이 없습니다.");
+    res.sendStatus(401);
   } else {
     await categories
       .destroy({
@@ -83,8 +89,9 @@ router.post("/delete", async (req, res) => {
       })
       .then(memo => {
         console.log("Destroyed Memo? :", memo); // null
-        res.send(memo);
-      });
+        res.send(JSON.stringify(memo));
+      })
+      .catch(err => res.send(JSON.stringify(err)));
   }
 });
 
