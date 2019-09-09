@@ -19,7 +19,8 @@ router.post("/toggle", (req, res) => {
             user_id: req.body.user_id,
             category_id: req.body.category_id
           })
-          .then(result => res.send(JSON.stringify(result)));
+          .then(result => res.send(JSON.stringify(result)))
+          .catch(err => res.send(JSON.stringify(err)));
       } else {
         favorites
           .destroy({
@@ -28,7 +29,8 @@ router.post("/toggle", (req, res) => {
               category_id: req.body.category_id
             }
           })
-          .then(result => res.send(JSON.stringify(result)));
+          .then(result => res.send(JSON.stringify(result)))
+          .catch(err => res.send(JSON.stringify(err)));
       }
     });
 });

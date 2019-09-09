@@ -14,7 +14,10 @@ router.route("/:id/info").get((req, res) => {
           id: userId
         }
       })
-      .then(result => res.send(JSON.stringify(result)));
+      .then(result => res.setStatus(200).send(JSON.stringify(result)))
+      .catch(err => JSON.stringify(err));
+  } else {
+    res.sendStatus(401);
   }
 });
 
@@ -141,10 +144,13 @@ router.post("/update", (req, res) => {
                 }
               });
             })
-            .then(result => res.send(JSON.stringify(result)));
+            .then(result => res.send(JSON.stringify(result)))
+            .catch(err => res.send(JSON.stringify(err)));
         }
       );
     });
+  } else {
+    res.sendStatus(401);
   }
 });
 
@@ -163,6 +169,8 @@ router.post("/delete", (req, res) => {
         res.clearCookie("connect.sid");
         res.send(JSON.stringify(result));
       });
+  } else {
+    res.sendStatus(401);
   }
 });
 
