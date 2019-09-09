@@ -33,19 +33,20 @@ router.get("/", async (req, res) => {
 //REVIEW next가 필요한지?
 router.post("/add", (req, res) => {
   if (req.session.id !== 1) {
-    res.send("권한이 없습니다.");
+    res.sendStatus(401);
   } else {
     titles
       .create({
         name: req.body.name
       })
-      .then(result => res.send(JSON.stringify(result)));
+      .then(result => res.send(JSON.stringify(result)))
+      .catch(err => res.send(JSON.stringify(err)));
   }
 });
 
 router.post("/update", (req, res) => {
   if (req.session.id !== 1) {
-    res.send("권한이 없습니다.");
+    res.sendStatus(401);
   } else {
     titles
       .update(
@@ -63,13 +64,14 @@ router.post("/update", (req, res) => {
       })
       .then(memo => {
         res.send(JSON.stringify(memo));
-      });
+      })
+      .catch(err => res.send(JSON.stringify(err)));
   }
 });
 
 router.post("/delete", (req, res) => {
   if (req.session.id !== 1) {
-    res.send("권한이 없습니다.");
+    res.sendStatus(401);
   } else {
     let result = {};
     titles
@@ -81,9 +83,10 @@ router.post("/delete", (req, res) => {
       })
       .then(() => {
         result.isTitlesDeleted = true;
-        // console.log("Destroyed Memo? :", memo); // null
-        res.send(result);
-      });
+
+        res.send(JSON.stringify(result));
+      })
+      .catch(err => res.send(JSON.stringify(err)));
   }
 });
 module.exports = router;

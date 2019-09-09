@@ -1,6 +1,7 @@
 var express = require("express");
 var crypto = require("crypto");
 var router = express.Router();
+var jwt = require("jsonwebtoken");
 
 var users = require("../models").Users;
 
@@ -14,7 +15,10 @@ router.route("/:id/info").get((req, res) => {
           id: userId
         }
       })
-      .then(result => res.send(JSON.stringify(result)));
+      .then(result => res.setStatus(200).send(JSON.stringify(result)))
+      .catch(err => JSON.stringify(err));
+  } else {
+    res.sendStatus(401);
   }
 });
 
@@ -68,40 +72,48 @@ router.post("/signup", async (req, res) => {
 
 //NOTE 로그인 기능 프로토 타입
 router.post("/signin", async (req, res) => {
-  var sess = req.session;
-
   let response = {};
-
   users
     .findOne({
-      where: {
-        email: req.body.email
-      }
+      where: { email: req.body.email }
     })
-    .then(result => {
-      sess.user_id = result.dataValues.id;
+    .then(user => {
       crypto.pbkdf2(
         req.body.password,
-        result.dataValues.key,
+        user.dataValues.key,
         199543,
         64,
         "sha512",
         (err, key) => {
-          if (key.toString("base64") === result.dataValues.password) {
-            response.isSignin = true;
-            res.send(JSON.stringify(response));
+          if (key.toString("base64") === user.dataValues.password) {
+            res.cookie.isLogined = true;
+            res.json({
+              token: jwt.sign(
+                {
+                  iat: 1440,
+                  id: user.id
+                },
+                "Uritube!!Zzang"
+              ),
+              user_name: user.name,
+              user_email: user.email
+            });
           } else {
             response.isSignin = false;
             res.send(JSON.stringify(response));
           }
         }
       );
+    })
+    .catch(function(err) {
+      res.send(err);
     });
 });
 
 //NOTE 로그아웃 기능 프로토 타입
 router.post("/signout", (req, res) => {
-  if (req.session.user_id) {
+  if (typeof token !== "undefined" && req.cookie.isLogined === true) {
+    req.cookie.isLogined = false;
     res.session.destroy();
     res.clearCookie("connect.sid");
     res.end();
@@ -111,7 +123,9 @@ router.post("/signout", (req, res) => {
 });
 
 router.post("/update", (req, res) => {
-  if (req.session.user_id) {
+  var token = req.headers.token;
+  if (typeof token !== "undefined") {
+    var decoded = jwt.verify(token, "Uritube!!Zzang");
     crypto.randomBytes(64, (err, buf) => {
       crypto.pbkdf2(
         req.body.password,
@@ -129,7 +143,7 @@ router.post("/update", (req, res) => {
               },
               {
                 where: {
-                  id: req.session.user_id
+                  id: decoded.id
                 }
               }
             )
@@ -137,32 +151,40 @@ router.post("/update", (req, res) => {
               return users.findOne({
                 attributes: ["name", "email"],
                 where: {
-                  id: req.session.user_id
+                  id: decoded.id
                 }
               });
             })
-            .then(result => res.send(JSON.stringify(result)));
+            .then(result => res.send(JSON.stringify(result)))
+            .catch(err => res.send(JSON.stringify(err)));
         }
       );
     });
+  } else {
+    res.sendStatus(403);
   }
 });
 
 router.post("/delete", (req, res) => {
+  var token = req.headers.token;
   let result = {};
-  if (req.session.user_id) {
+  if (typeof token !== "undefined") {
+    var decoded = jwt.verify(token, "Uritube!!Zzang");
     users
       .destroy({
         where: {
-          email: req.body.email,
-          password: req.body.password
+          id: decoded.id
         }
       })
       .then(() => {
         result.isUserDeleted = true;
+        req.cookie.isLogined = false;
+        res.session.destroy();
         res.clearCookie("connect.sid");
         res.send(JSON.stringify(result));
       });
+  } else {
+    res.sendStatus(401);
   }
 });
 

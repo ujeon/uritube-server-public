@@ -8,7 +8,7 @@ var router = express.Router();
 router.post("/add", async (req, res) => {
   var category_id = await categories
     .findOne({
-      where: { name: req.body.category }
+      where: { id: req.body.category_id }
     })
     .then(val => val.dataValues.id);
 
@@ -24,7 +24,7 @@ router.post("/add", async (req, res) => {
       user_id: user_id,
       category_id: category_id
     })
-    .then(val => res.send(val));
+    .then(val => res.send(JSON.stringify(val)));
 });
 
 router.post("/update", (req, res) => {
@@ -57,7 +57,7 @@ router.post("/delete", (req, res) => {
     })
     .then(memo => {
       console.log("Destroyed Memo? :", memo); // null
-      res.send(memo);
+      res.send(JSON.stringify(memo));
     });
 });
 module.exports = router;

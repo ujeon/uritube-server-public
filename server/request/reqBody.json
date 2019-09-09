@@ -1,0 +1,26 @@
+{
+  "users": {
+    "signup": ["email", "name", "password"],
+    "signin": ["email", "password"],
+    "signout": ["email", "password"],
+    "update": ["name", "password"]
+  },
+  "titles": {
+    "add": ["name"],
+    "update": ["id", "name"],
+    "delete": ["name"]
+  },
+  "categories": {
+    "add": ["name"],
+    "update": ["id", "name"],
+    "delete": ["id"]
+  },
+  "comments": {
+    "add": ["text", "user", "category"],
+    "update": ["text"],
+    "delete": ["id"]
+  },
+  "favorite": {
+    "toggle": ["user_id", "category_id"]
+  }
+}
