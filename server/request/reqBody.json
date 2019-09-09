@@ -3,8 +3,7 @@
     "signup": ["email", "name", "password"],
     "signin": ["email", "password"],
     "signout": ["email", "password"],
-    "update": ["name", "password"],
-    "delete": ["email", "password"]
+    "update": ["name", "password"]
   },
   "titles": {
     "add": ["name"],
