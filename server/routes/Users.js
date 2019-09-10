@@ -3,11 +3,15 @@ var crypto = require("crypto");
 var router = express.Router();
 var jwt = require("jsonwebtoken");
 
+var jwtKey = require("../secret/jwtKey.json");
+
 var users = require("../models").Users;
+var comments = require("../models").Comments;
+var favorites = require("../models").Favorites;
 
 router.route("/:id/info").get((req, res) => {
   const userId = req.params.id;
-  if (req.session.user_id) {
+  if (req.token && req.token.id) {
     users
       .findOne({
         attributes: ["name", "email"],
@@ -15,8 +19,8 @@ router.route("/:id/info").get((req, res) => {
           id: userId
         }
       })
-      .then(result => res.setStatus(200).send(JSON.stringify(result)))
-      .catch(err => JSON.stringify(err));
+      .then(result => res.json(result))
+      .catch(err => res.send(err));
   } else {
     res.sendStatus(401);
   }
@@ -27,12 +31,30 @@ router.route("/:id/comments").get((req, res) => {
   users
     .findOne({
       attributes: ["id", "email", "name"],
-      include: [{ all: true }],
+      include: [{ model: comments }],
       where: {
         id: userId
       }
     })
-    .then(result => res.send(JSON.stringify(result)));
+    .then(result => {
+      result.dataValues["user_name"] = result.name;
+      res.json(result);
+    })
+    .catch(err => res.send(err));
+});
+
+//TODO
+router.route("/:id/favorite").get((req, res) => {
+  const userId = req.params.id;
+  users
+    .findOne({
+      attributes: ["id", "email", "name"],
+      include: [{ model: favorites }],
+      where: {
+        id: userId
+      }
+    })
+    .then(result => res.json(result));
 });
 
 router.post("/signup", async (req, res) => {
@@ -59,18 +81,17 @@ router.post("/signup", async (req, res) => {
             })
             .then(() => {
               response.isSignup = true;
-              res.send(JSON.stringify(response));
+              res.json(response);
             });
         }
       );
     });
   } else {
     response.isSignup = false;
-    res.send(JSON.stringify(response));
+    res.json(response);
   }
 });
 
-//NOTE 로그인 기능 프로토 타입
 router.post("/signin", async (req, res) => {
   let response = {};
   users
@@ -86,21 +107,24 @@ router.post("/signin", async (req, res) => {
         "sha512",
         (err, key) => {
           if (key.toString("base64") === user.dataValues.password) {
-            res.cookie.isLogined = true;
+            let salt = jwtKey.key;
+            res.cookie("isLogined", "true");
             res.json({
               token: jwt.sign(
                 {
-                  iat: 1440,
+                  iat: Math.floor(Date.now() / 1000) - 30,
+                  exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1시간 뒤 만료
                   id: user.id
                 },
-                "Uritube!!Zzang"
+                salt
               ),
+              id: user.id,
               user_name: user.name,
               user_email: user.email
             });
           } else {
             response.isSignin = false;
-            res.send(JSON.stringify(response));
+            res.json(response);
           }
         }
       );
@@ -110,22 +134,20 @@ router.post("/signin", async (req, res) => {
     });
 });
 
-//NOTE 로그아웃 기능 프로토 타입
 router.post("/signout", (req, res) => {
-  if (typeof token !== "undefined" && req.cookie.isLogined === true) {
-    req.cookie.isLogined = false;
-    res.session.destroy();
-    res.clearCookie("connect.sid");
-    res.end();
+  if (req.token && req.token.id) {
+    res.cookie("isLogined", "false");
+    req.session.destroy(err => {
+      if (err) res.send(err);
+      res.end();
+    });
   } else {
-    res.end();
+    res.send("이미 로그아웃 되었습니다.");
   }
 });
 
 router.post("/update", (req, res) => {
-  var token = req.headers.token;
-  if (typeof token !== "undefined") {
-    var decoded = jwt.verify(token, "Uritube!!Zzang");
+  if (req.token && req.token.id) {
     crypto.randomBytes(64, (err, buf) => {
       crypto.pbkdf2(
         req.body.password,
@@ -143,7 +165,7 @@ router.post("/update", (req, res) => {
               },
               {
                 where: {
-                  id: decoded.id
+                  id: req.token.id
                 }
               }
             )
@@ -151,12 +173,12 @@ router.post("/update", (req, res) => {
               return users.findOne({
                 attributes: ["name", "email"],
                 where: {
-                  id: decoded.id
+                  id: req.token.id
                 }
               });
             })
-            .then(result => res.send(JSON.stringify(result)))
-            .catch(err => res.send(JSON.stringify(err)));
+            .then(result => res.json(result))
+            .catch(err => res.send(err));
         }
       );
     });
@@ -166,22 +188,21 @@ router.post("/update", (req, res) => {
 });
 
 router.post("/delete", (req, res) => {
-  var token = req.headers.token;
   let result = {};
-  if (typeof token !== "undefined") {
-    var decoded = jwt.verify(token, "Uritube!!Zzang");
+
+  if (req.token && req.token.id) {
     users
       .destroy({
         where: {
-          id: decoded.id
+          id: req.token.id
         }
       })
       .then(() => {
         result.isUserDeleted = true;
-        req.cookie.isLogined = false;
-        res.session.destroy();
-        res.clearCookie("connect.sid");
-        res.send(JSON.stringify(result));
+        // req.cookie.isLogined = false; // TOFIX 여기서 에러가 납니다.
+        // res.session.destroy(); // TOFIX 여기서 에러가 납니다.
+        // res.clearCookie("");
+        res.json(result);
       });
   } else {
     res.sendStatus(401);

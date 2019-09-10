@@ -2,8 +2,9 @@
   "users": {
     "signup": ["email", "name", "password"],
     "signin": ["email", "password"],
-    "signout": ["email", "password"],
-    "update": ["name", "password"]
+    "signout": ["email"],
+    "update": ["name", "password"],
+    "delete": []
   },
   "titles": {
     "add": ["name"],
@@ -11,14 +12,14 @@
     "delete": ["name"]
   },
   "categories": {
-    "add": ["name"],
+    "add": ["title", "name"],
     "update": ["id", "name"],
     "delete": ["id"]
   },
   "comments": {
-    "add": ["text", "user", "category"],
-    "update": ["text"],
-    "delete": ["id"]
+    "add": ["text", "user", "category_id"],
+    "update": ["text", "comment_id"],
+    "delete": ["comment_id"]
   },
   "favorite": {
     "toggle": ["user_id", "category_id"]
