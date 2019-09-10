@@ -4,7 +4,8 @@
     "signin": ["email", "password"],
     "signout": ["email"],
     "update": ["name", "password"],
-    "delete": []
+    "delete": ["password"],
+    "kick": ["user_id"]
   },
   "titles": {
     "add": ["name"],
