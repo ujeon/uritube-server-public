@@ -18,46 +18,57 @@ router.post("/add", async (req, res) => {
     })
     .then(val => val.dataValues.id);
 
-  await comments
-    .create({
-      text: req.body.text,
-      user_id: user_id,
-      category_id: category_id
-    })
-    .then(val => res.send(JSON.stringify(val)));
+  if (req.token && req.token.id === user_id) {
+    await comments
+      .create({
+        text: req.body.text,
+        user_id: user_id,
+        category_id: category_id
+      })
+      .then(val => res.json(val));
+  } else {
+    res.sendStatus(401);
+  }
 });
 
-router.post("/update", (req, res) => {
-  comments
-    .update(
-      {
-        text: req.body.text
-      },
-      {
-        where: { id: req.body.id }
-      }
-    )
-    .then(() => {
-      return comments.findOne({
-        where: { text: req.body.text }
+router.post("/update", async (req, res) => {
+  if (req.token && req.token.id) {
+    comments
+      .update(
+        {
+          text: req.body.text
+        },
+        {
+          where: { id: req.body.comment_id }
+        }
+      )
+      .then(() => {
+        return comments.findOne({
+          where: { text: req.body.text }
+        });
+      })
+      .then(memo => {
+        res.json(memo);
       });
-    })
-    .then(memo => {
-      res.send(JSON.stringify(memo));
-    });
+  } else {
+    res.sendStatus(401);
+  }
 });
 
 router.post("/delete", (req, res) => {
-  comments
-    .destroy({
-      where: { id: req.body.id }
-    })
-    .then(() => {
-      return comments.findOne({ where: { id: req.body.id } });
-    })
-    .then(memo => {
-      console.log("Destroyed Memo? :", memo); // null
-      res.send(JSON.stringify(memo));
-    });
+  if (req.token && req.token.id) {
+    comments
+      .destroy({
+        where: { id: req.body.comment_id }
+      })
+      .then(() => {
+        return comments.findOne({ where: { id: req.body.comment_id } });
+      })
+      .then(memo => {
+        res.json(memo);
+      });
+  } else {
+    res.sendStatus(401);
+  }
 });
 module.exports = router;

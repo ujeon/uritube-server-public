@@ -6,6 +6,14 @@ var titles = require("../models").Titles;
 
 var router = express.Router();
 
+router.route("/:id").get((req, res) => {
+  categories
+    .findOne({
+      where: { id: req.params.id }
+    })
+    .then(val => res.json(val));
+});
+
 router.route("/:id/comments").get(async (req, res) => {
   try {
     let ca_comments = await categories.findAll({ include: [comments] });
@@ -26,16 +34,14 @@ router.route("/:id/comments").get(async (req, res) => {
       result[i] = await result[i];
     }
 
-    res.send(JSON.stringify(result));
+    res.json(result);
   } catch (err) {
-    res.send(JSON.stringify(err));
+    res.json(err);
   }
 });
 
 router.post("/add", async (req, res) => {
-  if (req.session.id !== 1) {
-    res.sendStatus(401);
-  } else {
+  if (req.token && req.token.id === 1) {
     let title_id = await titles
       .findOne({
         where: { name: req.body.title }
@@ -47,15 +53,15 @@ router.post("/add", async (req, res) => {
         name: req.body.name,
         title_id: title_id
       })
-      .then(val => res.send(JSON.stringify(val)))
-      .catch(err => res.send(JSON.stringify(err)));
+      .then(val => res.json(val))
+      .catch(err => res.json(err));
+  } else {
+    res.sendStatus(401);
   }
 });
 
 router.post("/update", async (req, res) => {
-  if (req.session.id !== 1) {
-    res.sendStatus(401);
-  } else {
+  if (req.token && req.token.id === 1) {
     await categories
       .update(
         {
@@ -71,16 +77,16 @@ router.post("/update", async (req, res) => {
         });
       })
       .then(memo => {
-        res.send(JSON.stringify(memo));
+        res.json(memo);
       })
-      .catch(err => res.send(JSON.stringify(err)));
+      .catch(err => res.json(err));
+  } else {
+    res.sendStatus(401);
   }
 });
 
 router.post("/delete", async (req, res) => {
-  if (req.session.id !== 1) {
-    res.sendStatus(401);
-  } else {
+  if (req.token && req.token.id === 1) {
     await categories
       .destroy({
         where: { id: req.body.id }
@@ -89,10 +95,12 @@ router.post("/delete", async (req, res) => {
         return categories.findOne({ where: { id: req.body.id } });
       })
       .then(memo => {
-        console.log("Destroyed Memo? :", memo); // null
-        res.send(JSON.stringify(memo));
+        // console.log("Destroyed Memo? :", memo); // null
+        res.json(memo);
       })
-      .catch(err => res.send(JSON.stringify(err)));
+      .catch(err => res.json(err));
+  } else {
+    res.sendStatus(401);
   }
 });
 
