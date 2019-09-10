@@ -22,32 +22,28 @@ router.get("/", async (req, res) => {
     return temp;
   });
 
-  //TOFIX 좀 더 세련된..? 방법이 없을까요
   for (let i = 0; i < result.length; i++) {
     result[i] = await result[i];
   }
 
-  res.send(JSON.stringify(result));
+  res.json(result);
 });
 
-//REVIEW next가 필요한지?
 router.post("/add", (req, res) => {
-  if (req.session.id !== 1) {
-    res.sendStatus(401);
-  } else {
+  if (req.token && req.token.id === 1) {
     titles
       .create({
         name: req.body.name
       })
-      .then(result => res.send(JSON.stringify(result)))
-      .catch(err => res.send(JSON.stringify(err)));
+      .then(result => res.json(result))
+      .catch(err => res.json(err));
+  } else {
+    res.sendStatus(401);
   }
 });
 
 router.post("/update", (req, res) => {
-  if (req.session.id !== 1) {
-    res.sendStatus(401);
-  } else {
+  if (req.token && req.token.id === 1) {
     titles
       .update(
         {
@@ -63,16 +59,16 @@ router.post("/update", (req, res) => {
         });
       })
       .then(memo => {
-        res.send(JSON.stringify(memo));
+        res.json(memo);
       })
-      .catch(err => res.send(JSON.stringify(err)));
+      .catch(err => res.json(err));
+  } else {
+    res.sendStatus(401);
   }
 });
 
 router.post("/delete", (req, res) => {
-  if (req.session.id !== 1) {
-    res.sendStatus(401);
-  } else {
+  if (req.token && req.token.id === 1) {
     let result = {};
     titles
       .destroy({
@@ -84,9 +80,11 @@ router.post("/delete", (req, res) => {
       .then(() => {
         result.isTitlesDeleted = true;
 
-        res.send(JSON.stringify(result));
+        res.json(result);
       })
-      .catch(err => res.send(JSON.stringify(err)));
+      .catch(err => res.json(err));
+  } else {
+    res.sendStatus(401);
   }
 });
 module.exports = router;
