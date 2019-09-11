@@ -72,7 +72,7 @@ router.post("/delete", (req, res) => {
     let result = {};
     titles
       .destroy({
-        where: { name: req.body.name }
+        where: { id: req.body.id }
       })
       .then(() => {
         return titles.findOne({ where: { name: req.body.name } });
