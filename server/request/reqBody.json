@@ -10,7 +10,7 @@
   "titles": {
     "add": ["name"],
     "update": ["id", "name"],
-    "delete": ["name"]
+    "delete": ["id"]
   },
   "categories": {
     "add": ["title", "name"],
