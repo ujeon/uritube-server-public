@@ -187,23 +187,72 @@ router.post("/update", (req, res) => {
   }
 });
 
-router.post("/delete", (req, res) => {
+router.post("/delete", async (req, res) => {
   let result = {};
-
   if (req.token && req.token.id) {
+    users
+      .findOne({
+        where: { id: req.token.id }
+      })
+      .then(user => {
+        crypto.pbkdf2(
+          req.body.password,
+          user.dataValues.key,
+          199543,
+          64,
+          "sha512",
+          (err, key) => {
+            if (key.toString("base64") === user.dataValues.password) {
+              users
+                .destroy({
+                  where: {
+                    id: req.token.id
+                  }
+                })
+                .then(() => {
+                  result.isUserDeleted = true;
+                  // req.cookie.isLogined = false; // TOFIX 여기서 에러가 납니다.
+                  // res.session.destroy(); // TOFIX 여기서 에러가 납니다.
+                  // res.clearCookie("");
+                  res.json(result);
+                })
+                .catch(err => res.json(err));
+            }
+          }
+        );
+      });
+  } else {
+    res.sendStatus(401);
+  }
+});
+
+router.get("/list", async (req, res) => {
+  if (req.token && req.token.id === 1) {
+    users
+      .findAll({
+        attributes: ["id", "email", "name"]
+      })
+      .then(result => {
+        res.json(result);
+      })
+      .catch(err => res.json(err));
+  } else {
+    res.sendStatus(401);
+  }
+});
+
+router.post("/kick", (req, res) => {
+  if (req.token && req.token.id === 1) {
     users
       .destroy({
         where: {
-          id: req.token.id
+          id: req.body.user_id
         }
       })
-      .then(() => {
-        result.isUserDeleted = true;
-        // req.cookie.isLogined = false; // TOFIX 여기서 에러가 납니다.
-        // res.session.destroy(); // TOFIX 여기서 에러가 납니다.
-        // res.clearCookie("");
+      .then(result => {
         res.json(result);
-      });
+      })
+      .catch(err => res.json(err));
   } else {
     res.sendStatus(401);
   }
